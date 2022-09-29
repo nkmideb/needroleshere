@@ -7,7 +7,7 @@ Build-Depends:
   debhelper-compat (= 12),
   dh-cargo,
   cargo,
-  rustc,
+  rustc (>= 1.59),
   pkg-config,
   libssl-dev
 Standards-Version: 4.3.0
