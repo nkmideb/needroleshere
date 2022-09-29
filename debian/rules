@@ -16,3 +16,6 @@ override_dh_auto_install:
 	sed -i -e '/^replace-with =/d' debian/cargo_home/config || :
 	dh_auto_install
 	rm -rf debian/needroleshere/usr/share || :
+
+override_dh_installsystemd:
+	dh_installsystemd --restart-after-upgrade --no-enable --no-start
