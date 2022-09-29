@@ -1,0 +1,23 @@
+Source: needroleshere
+Section: admin
+Priority: optional
+Maintainer: Sorah Fukumori <her@sorah.jp>
+Uploaders: Sorah Fukumori <her@sorah.jp>
+Depends: 
+  systemd
+Build-Depends:
+  debhelper-compat (= 12),
+  dh-cargo,
+  cargo,
+  rustc,
+  pkg-config,
+  libssl-dev
+Standards-Version: 4.3.0
+Homepage: https://github.com/sorah/needroleshere
+
+Package: needroleshere
+Architecture: any
+Depends:
+  ${misc:Depends},
+  ${shlibs:Depends},
+Description: Yet another AWS IAM Roles Anywhere helper
