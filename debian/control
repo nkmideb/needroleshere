@@ -3,8 +3,6 @@ Section: admin
 Priority: optional
 Maintainer: Sorah Fukumori <her@sorah.jp>
 Uploaders: Sorah Fukumori <her@sorah.jp>
-Depends: 
-  systemd
 Build-Depends:
   debhelper-compat (= 12),
   dh-cargo,
