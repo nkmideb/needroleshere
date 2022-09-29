@@ -5,7 +5,7 @@ pub struct CredentialProcessArgs {
     /// Certificates with RSA, P-256, or P-384 key are supported.
     /// A certificate file may include intermediate CA certificate(s); informally known as fullchain.pem.
     #[clap(long)]
-    certificate: String,
+    certificate: Vec<String>,
     /// Path to a private key in PEM corresponding to a certificate
     #[clap(long)]
     private_key: String,
@@ -39,19 +39,19 @@ pub struct CredentialProcessArgs {
 pub struct CredentialProcessResponse {
     pub version: i64,
     pub access_key_id: String,
-    pub secret_access_key: String,
+    pub secret_access_key: crate::client::AwsSecretAccessKey,
     pub session_token: String,
     pub expiration: chrono::DateTime<chrono::Utc>,
 }
 
 #[tokio::main]
 pub async fn run(args: &CredentialProcessArgs) -> Result<(), anyhow::Error> {
-    let identity = crate::identity::Identity::from_key_and_cert_and_chain_files(
+    let identity = crate::identity::Identity::from_file(
         &args.private_key,
-        &args.certificate,
         &args
-            .intermediates
+            .certificate
             .iter()
+            .chain(args.intermediates.iter())
             .map(|v| v.as_ref())
             .collect::<Vec<&str>>(),
     )

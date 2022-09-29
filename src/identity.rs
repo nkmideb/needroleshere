@@ -129,16 +129,20 @@ impl Identity {
         private_key_path: &str,
         certificate_file_paths: &[&str],
     ) -> Result<Self, crate::error::Error> {
+        use secrecy::ExposeSecret;
+
         tracing::trace!(message = "from_file", private_key_path = ?private_key_path, certificate_file_paths = ?certificate_file_paths);
 
-        let key_file = match tokio::fs::read_to_string(private_key_path).await {
-            Ok(v) => v,
-            Err(e) => {
-                tracing::error!(message = "failed to load private key", path = %private_key_path, error = ?e);
-                return Err(e.into());
-            }
-        };
-        let pkey = match PrivateKey::from_private_key_pem(&key_file) {
+        let key_file = secrecy::Secret::new(
+            match tokio::fs::read_to_string(private_key_path).await {
+                Ok(v) => v,
+                Err(e) => {
+                    tracing::error!(message = "failed to load private key", path = %private_key_path, error = ?e);
+                    return Err(e.into());
+                }
+            },
+        );
+        let pkey = match PrivateKey::from_private_key_pem(key_file.expose_secret()) {
             Ok(v) => v,
             Err(e) => {
                 tracing::error!(message = "failed to parse private key", path = %private_key_path, error = ?e);
@@ -152,18 +156,6 @@ impl Identity {
         }
 
         Self::from_chain_and_key(&chain, pkey)
-    }
-
-    pub async fn from_key_and_cert_and_chain_files(
-        private_key_path: &str,
-        certificate_file: &str,
-        intermediate_files: &[&str],
-    ) -> Result<Self, crate::error::Error> {
-        tracing::trace!(message = "from_key_and_cert_and_chain_files", private_key_path = ?private_key_path, certificate_file = ?certificate_file, intermediate_files= ?intermediate_files);
-        let mut certificate_file_paths = Vec::with_capacity(intermediate_files.len() + 1);
-        certificate_file_paths.push(certificate_file);
-        certificate_file_paths.extend_from_slice(intermediate_files);
-        Self::from_file(private_key_path, &certificate_file_paths).await
     }
 
     pub fn validate(&self) -> Result<(), crate::error::Error> {
@@ -192,8 +184,6 @@ impl Identity {
         // let n = crypto_bigint::U192::from_be_slice(&slice);
     }
 }
-
-// TODO: zeroize
 
 #[cfg(test)]
 mod test {
