@@ -19,3 +19,5 @@ override_dh_auto_install:
 
 override_dh_installsystemd:
 	dh_installsystemd --restart-after-upgrade --no-enable --no-start
+	dh_installsystemd --restart-after-upgrade --no-enable --no-start --name=needroleshere-ecs-relative
+	dh_installsystemd --restart-after-upgrade --no-enable --no-start --name=needroleshere-dir
